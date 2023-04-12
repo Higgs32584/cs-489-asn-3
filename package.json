@@ -1,0 +1,24 @@
+{
+  "name": "cs-489-asn-3",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Higgs32584/cs-489-asn-3.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Higgs32584/cs-489-asn-3/issues"
+  },
+  "homepage": "https://github.com/Higgs32584/cs-489-asn-3#readme",
+  "dependencies": {
+    "hardhat": "^2.13.1",
+    "save-dev": "^0.0.1-security"
+  }
+}
