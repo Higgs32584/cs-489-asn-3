@@ -18,7 +18,12 @@
   },
   "homepage": "https://github.com/Higgs32584/cs-489-asn-3#readme",
   "dependencies": {
-    "hardhat": "^2.13.1",
+    "@nomicfoundation/hardhat-toolbox": "^2.0.2",
+    "alchemy-sdk": "^2.7.0",
+    "dotenv": "^16.0.3",
     "save-dev": "^0.0.1-security"
+  },
+  "devDependencies": {
+    "hardhat": "^2.13.1"
   }
 }
