@@ -3,8 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { ethers } from "ethers";
 import abi from './utils/CareerFair.json';
 
-// • A button that shows “See Attendees” that displays a list of all registered
-// addresses
+// • A button that shows “See Attendees” that displays a list of all registered addresses
 // – Display “no one is enrolled” if no students are registered for the career
 // fair
 
@@ -14,6 +13,10 @@ import abi from './utils/CareerFair.json';
 function App() {
 
   const [currentAccount, setCurrentAccount] = useState("");
+  const [company, setCompany] = useState("");
+  const handleInputChange = (event) => {
+    setCompany(event.target.value);
+  };
 
   const contractAddress = "0x82DdDA9582F6Ee6C96bDE65115Fafa037f7527Bc";
 
@@ -60,7 +63,13 @@ function App() {
 
         const contract = new ethers.Contract(contractAddress,contractABI, signer);
         const attendees = await contract.getAttendees();
-        if(attendees.includes(currentAccount)){
+        let enrolled = false;
+        for(let i = 0; i < attendees.length; i++){
+          if(attendees[i].toLowerCase() === currentAccount.toLowerCase()){
+            enrolled = true;
+          }
+        }
+        if(enrolled){
           console.log("You are already enrolled in the career fair");
         }
         else{
@@ -79,15 +88,19 @@ function App() {
     try {
       const { ethereum } = window;
       if (ethereum) {
-        //Get value from input
-        //allows the student to enroll */
-        //Provider and Signer
         const provider = new ethers.providers.Web3Provider(ethereum);
         const signer = provider.getSigner();
 
         const contract = new ethers.Contract(contractAddress,contractABI, signer);
         const attendees = await contract.getAttendees();
-        if(attendees.includes(currentAccount)){
+        let enrolled = false;
+        for(let i = 0; i < attendees.length; i++){
+          //console.log('iterated BOTH LOWER',attendees[i], currentAccount);
+          if(attendees[i].toLowerCase() === currentAccount.toLowerCase()){
+            //setCurrentAccount(attendees[i]);
+            enrolled = true;
+          }
+        if(enrolled){
           const tx = await contract.unenroll();
           console.log("Transaction sent:", tx.hash);
           await tx.wait();
@@ -96,10 +109,28 @@ function App() {
         else{
           console.log("You are not enrolled in the career fair");
         }
+      }
     }
   }
     catch(error){
       console.log(error)
+    }
+  }
+  const seeAttendees = async () => {
+    try {
+      const { ethereum } = window;
+      if (ethereum) {
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+
+        const contract = new ethers.Contract(contractAddress,contractABI, signer);
+        const attendees = await contract.getAttendees();
+        alert(attendees);
+        alert(attendees.length);
+      }
+  }
+    catch(error){
+      alert(error)
     }
   }
 
@@ -108,7 +139,6 @@ function App() {
       const { ethereum } = window;
       if (ethereum) {
         //Get value from input
-        const companyName = document.getElementById("companyName").value;
         //Provider and Signer
         const provider = new ethers.providers.Web3Provider(ethereum);
         const signer = provider.getSigner();
@@ -116,21 +146,13 @@ function App() {
         // Get contract
         //Allows the owner of the contract to enter in a company name to be added.
         const contract = new ethers.Contract(contractAddress, contractABI, signer);
-        const owner = await contract.owner();
-        if(owner === currentAccount){
-        const tx = await contract.add(companyName);
-        console.log("Transaction sent:", tx.hash);
-        await tx.wait();
-        console.log("Company added successfully!");
-        }
-        else{
-          // If unsuccessful, display an alert saying “Only the owner can add a company”
-          console.log("Only the owner can add a company");
-        }
+        alert(company);
+        const result = await contract.add(company);
+        console.log("Transaction sent:", result.hash);
     }
   }
     catch(error){
-      console.log(error)
+      alert(error)
     }
   }
   // Allows to connect an auth'd wallet
@@ -150,10 +172,12 @@ function App() {
 
       // Set the currAccount state within this component to know the address of the account
       setCurrentAccount(accounts[0]);
+      console.log(currentAccount);
     } catch (error) {
       console.log(error)
     }
   }
+  
 
   useEffect(() => {
     checkIfWalletIsConnected();
@@ -172,7 +196,9 @@ function App() {
         )}
 
     {/* A button that shows “Add Company” and a textfield that: */}
-          <input type="text" id="companyName" name="companyName" />
+          <input type="text" id="companyName" name="companyName" 
+          value={company}
+          onChange={handleInputChange}/>
         <button onClick={addCompany}>
             Add Company
           </button>
@@ -185,7 +211,7 @@ function App() {
             Unenroll
           </button>
                     {/* • A button that shows “Enroll” that */}
-        <button onClick={unenroll}>
+        <button onClick={seeAttendees}>
         See Attendees
           </button>
 
