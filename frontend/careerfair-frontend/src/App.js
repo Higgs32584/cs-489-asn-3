@@ -1,42 +1,35 @@
-import logo from './logo.svg';
 import './App.css';
-import React, { useEffect, useState } from "react";
-// Build a simple React project named “careerfair-frontend” that communicates
-// with your deployed “CareerFair” contract. The specifications are as follows:
-// • A button that shows “Connect Wallet”. This button should:
-// – console.log if “No ETH wallet detected” if no ETH object is detected
-// and should console.log “ETH detected” if ETH object is detected
-// • A button that shows “Add Company” and a textfield that:
-// – Allows the owner of the contract to enter in a company name to be
-// added. If unsuccessful, display an alert saying “Only the owner can
-// add a company”
-// • A button that shows “Enroll” that allows the student to enroll
-// – Display an alert if the student is already enrolled saying “You are
-// already enrolled in the career fair”
-// • A button that ahows “Unenroll” that allows the student to unenroll
-// – Display an alert if the student is not already enrolled saying “You
-// are not enrolled in the career fair”
+import React, { useEffect, useState } from 'react';
+import { ethers } from "ethers";
+import abi from './utils/CareerFair.json';
+
 // • A button that shows “See Attendees” that displays a list of all registered
 // addresses
 // – Display “no one is enrolled” if no students are registered for the career
 // fair
 
-
+  
 
 
 function App() {
 
   const [currentAccount, setCurrentAccount] = useState("");
 
+  const contractAddress = "0x82DdDA9582F6Ee6C96bDE65115Fafa037f7527Bc";
+
+  const contractABI= abi.abi;
+
   const checkIfWalletIsConnected = async () => {
     try {
       const { ethereum } = window;
 
       if (!ethereum) {
-        console.log("Make sure you have an ETH wallet!");
+        // console.log if “No ETH wallet detected” if no ETH object is detected
+        console.log("No ETH wallet detected");
         return;
       } else {
-        console.log("We have the ethereum object", ethereum);
+        // and should console.log “ETH detected” if ETH object is detected
+        console.log("ETH Detected", ethereum);
       }
 
       // Pulls array of accounts
@@ -55,7 +48,91 @@ function App() {
       console.log(error);
     }
   }
+  const enroll = async () => {
+    try {
+      const { ethereum } = window;
+      if (ethereum) {
+        //Get value from input
+        //allows the student to enroll */
+        //Provider and Signer
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
 
+        const contract = new ethers.Contract(contractAddress,contractABI, signer);
+        const attendees = await contract.getAttendees();
+        if(attendees.includes(currentAccount)){
+          console.log("You are already enrolled in the career fair");
+        }
+        else{
+          const tx = await contract.enroll();
+          console.log("Transaction sent:", tx.hash);
+          await tx.wait();
+          console.log("Enrolled successfully!");
+        }
+    }
+  }
+    catch(error){
+      console.log(error)
+    }
+  }
+  const unenroll = async () => {
+    try {
+      const { ethereum } = window;
+      if (ethereum) {
+        //Get value from input
+        //allows the student to enroll */
+        //Provider and Signer
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+
+        const contract = new ethers.Contract(contractAddress,contractABI, signer);
+        const attendees = await contract.getAttendees();
+        if(attendees.includes(currentAccount)){
+          const tx = await contract.unenroll();
+          console.log("Transaction sent:", tx.hash);
+          await tx.wait();
+          console.log("Enrolled successfully!");
+        }
+        else{
+          console.log("You are not enrolled in the career fair");
+        }
+    }
+  }
+    catch(error){
+      console.log(error)
+    }
+  }
+
+  const addCompany = async () => {
+    try {
+      const { ethereum } = window;
+      if (ethereum) {
+        //Get value from input
+        const companyName = document.getElementById("companyName").value;
+        //Provider and Signer
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+
+        // Get contract
+        //Allows the owner of the contract to enter in a company name to be added.
+        const contract = new ethers.Contract(contractAddress, contractABI, signer);
+        const owner = await contract.owner();
+        if(owner === currentAccount){
+        const tx = await contract.add(companyName);
+        console.log("Transaction sent:", tx.hash);
+        await tx.wait();
+        console.log("Company added successfully!");
+        }
+        else{
+          // If unsuccessful, display an alert saying “Only the owner can add a company”
+          console.log("Only the owner can add a company");
+        }
+    }
+  }
+    catch(error){
+      console.log(error)
+    }
+  }
   // Allows to connect an auth'd wallet
   const connectWallet = async () => {
     try {
@@ -84,12 +161,35 @@ function App() {
 
   return (
     <div className="App">
+
+      {/* Connect Wallet */}
       <header className="App-header">
         {!currentAccount && (
+          // A button that shows “Connect Wallet”. This button should:
           <button onClick={connectWallet}>
             Connect Wallet
           </button>
         )}
+
+    {/* A button that shows “Add Company” and a textfield that: */}
+          <input type="text" id="companyName" name="companyName" />
+        <button onClick={addCompany}>
+            Add Company
+          </button>
+           {/* • A button that shows “Enroll” that */}
+        <button onClick={enroll}>
+            Enroll
+          </button>
+          {/* • A button that shows “Enroll” that */}
+        <button onClick={unenroll}>
+            Unenroll
+          </button>
+                    {/* • A button that shows “Enroll” that */}
+        <button onClick={unenroll}>
+        See Attendees
+          </button>
+
+
       </header>
     </div>
   );
